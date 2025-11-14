@@ -1,0 +1,91 @@
+Crear una base de datos en MongoDB e insertar un conjunto de datos de prueba (al menos 100 documentos).
+
+StockCode: "P" + (1000 + i),
+    Description: "Producto " + i,
+    Quantity: Math.floor(Math.random() * 10) + 1,
+    InvoiceDate: new Date(),
+    UnitPrice: Math.floor(Math.random() * 100) + 10,
+    CustomerID: 10000 + i,
+    Country: ["Colombia", "México", "Chile", "Perú", "Argentina"][Math.floor(Math.random() * 5)]
+  });
+}
+
+3 Consultas básicas
+Insertar un nuevo documento:
+
+db.ecommerce.insertOne({
+  InvoiceNo: 600001,
+  StockCode: "P2000",
+  Description: "Laptop Gamer",
+  Quantity: 5,
+  InvoiceDate: new Date(),
+  UnitPrice: 3200,
+  CustomerID: 12000,
+  Country: "Colombia"
+});
+
+Seleccionar (mostrar documentos)
+
+db.ecommerce.find().limit(5)
+
+Actualizar un documento:
+
+db.ecommerce.updateOne(
+  { StockCode: "P2000" },
+  { $set: { Quantity: 10, Country: "México" } }
+);
+Eliminar un documento:
+
+db.ecommerce.deleteOne({ StockCode: "P2000" });
+
+Este código elimina de la colección ecommerce el primer documento que tenga el StockCode igual a “P2000”.
+
+4. Consultas con filtros y operadores
+
+
+db.ecommerce.find({ Country: "Colombia" });
+
+
+Filtrar productos con cantidad mayor a 5:
+
+db.ecommerce.find({ Quantity: { $gt: 5 } });
+
+
+Filtrar productos con precio entre 20 y 50:
+
+db.ecommerce.find({ UnitPrice: { $gte: 20, $lte: 50 } });
+
+Filtrar por múltiples condiciones (AND y OR):
+
+db.ecommerce.find({
+  $or: [
+    { Country: "Chile" },
+    { Quantity: { $gte: 8 } }
+  ]
+});
+
+4.Consultas de agregación
+Contar total de documentos:
+
+db.ecommerce.aggregate([
+  { $count: "total_documentos" }
+]);
+
+Sumar total de productos vendidos:
+
+db.ecommerce.aggregate([
+  { $group: { _id: null, total_vendido: { $sum: "$Quantity" } } }
+]);
+
+Promedio de precios:
+
+db.ecommerce.aggregate([
+  { $group: { _id: null, promedio_precio: { $avg: "$UnitPrice" } } }
+]);
+
+Agrupar por país y mostrar totales:
+
+db.ecommerce.aggregate([
+  { $group: { _id: "$Country", total_clientes: { $sum: 1 }, total_cantidad: { $sum: "$Quantity" } } },
+  { $sort: { total_cantidad: -1 } }
+]);
